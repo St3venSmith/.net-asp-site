@@ -1,0 +1,40 @@
+﻿@model List<Activitys>
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Location</th>
+            <th>Type</th>
+            <th>Fireteam Size</th>
+            <th>Difficulty</th>
+            <th>Is Match Made</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Activitys activity in Model)
+        {
+            <tr>
+                <td>@activity.activityName</td>
+                <td>@activity.activityDescription</td>
+                <td>@activity.activityLocation</td>
+                <td>@activity.activityType</td>
+                <td>@activity.fireteamSize</td>
+                <td>@activity.difficulty</td>
+                <td>@activity.isMatchMade</td>
+            </tr>
+        }
+    </tbody>
+</table>
+

@@ -1,0 +1,11 @@
+﻿@model Activitys
+
+@{
+    ViewData["Title"] = "Delete";
+}
+<h1>Do you want to delete @Model.activityName?</h1>
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="activityID" />
+    <button type="submit" class="btn btn-primary">Delete</button>
+    <a asp-controller="Admin" asp-action="Index" class="btn btn-primary">Cancel</a>
+</form>

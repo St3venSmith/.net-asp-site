@@ -1,0 +1,41 @@
+﻿@model List<Activitys>
+@{
+    ViewData["Title"] = "Admin";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Admin</h1>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Location</th>
+            <th>Type</th>
+            <th>Fireteam Size</th>
+            <th>Difficulty</th>
+            <th>Is Match Made</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Activitys activity in Model)
+        {
+            <tr>
+                <td>@activity.activityName</td>
+                <td>@activity.activityDescription</td>
+                <td>@activity.activityLocation</td>
+                <td>@activity.activityType</td>
+                <td>@activity.fireteamSize</td>
+                <td>@activity.difficulty</td>
+                <td>@activity.isMatchMade</td>
+                <td><a class="btn btn-primary" asp-controller="Admin" asp-action="Edit" asp-route-id="@activity.activityID">Edit</a></td>
+                <td><a class="btn btn-primary" asp-controller="Admin" asp-action="Delete" asp-route-id="@activity.activityID">Delete</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a class="btn btn-primary" asp-controller="Admin" asp-action="Add">Add</a>
