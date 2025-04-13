@@ -7,6 +7,23 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<SmithContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("SmithContext")));
 
+// Add distributed memory cache for session support
+builder.Services.AddDistributedMemoryCache();
+
+// Add session services
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Session timeout
+    options.Cookie.HttpOnly = true; // Prevent client-side access to the cookie
+    options.Cookie.IsEssential = true; // Ensure the cookie is essential for GDPR compliance
+});
+
+// Add IHttpContextAccessor for accessing HttpContext
+builder.Services.AddHttpContextAccessor();
+
+// Register the SessionCookieHelper as a service
+builder.Services.AddScoped<SessionCookieHelper>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -19,6 +36,9 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
+
+// Enable session middleware
+app.UseSession();
 
 app.UseAuthorization();
 

@@ -1,0 +1,34 @@
+﻿@model List<Activitys>
+
+@{
+    ViewData["Title"] = "Recent Changes";
+}
+
+<h2>Recent Changes</h2>
+
+@if (Model == null || !Model.Any())
+{
+    <p>No activities have been changed or edited yet.</p>
+}
+else
+{
+    <ul>
+        @foreach (var activity in Model)
+        {
+            <li>
+                <strong>@activity.activityName</strong> - @activity.activityDescription
+                <br />
+                <em>Location:</em> @activity.activityLocation
+                <br />
+                <em>Type:</em> @activity.activityType
+                <br />
+                <em>Difficulty:</em> @activity.difficulty
+                <br />
+                <em>Fireteam Size:</em> @activity.fireteamSize
+                <br />
+                <em>Matchmade:</em> @(activity.isMatchMade ? "Yes" : "No")
+            </li>
+            <hr />
+        }
+    </ul>
+}

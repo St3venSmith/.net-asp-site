@@ -6,8 +6,14 @@ namespace InClass6s.Controllers
 {
     public class AdminController : Controller
     {
-        private InClass6s.Models.SmithContext smithContext { get; set; }
-        public AdminController(InClass6s.Models.SmithContext smithContext) => this.smithContext = smithContext;
+        private readonly SmithContext smithContext;
+        private readonly SessionCookieHelper sessionCookieHelper;
+
+        public AdminController(SmithContext smithContext, SessionCookieHelper sessionCookieHelper)
+        {
+            this.smithContext = smithContext;
+            this.sessionCookieHelper = sessionCookieHelper;
+        }
 
         public IActionResult Index()
         {
@@ -29,7 +35,6 @@ namespace InClass6s.Controllers
             Activitys activity = smithContext.Activities.Find(id);
             return View("AddEdit", activity);
         }
-
         [HttpPost]
         public IActionResult AddEdit(Activitys activity)
         {
@@ -37,16 +42,27 @@ namespace InClass6s.Controllers
             {
                 if (activity.activityID == 0)
                 {
-                    // adds new activity
+                    // Adds new activity
                     smithContext.Activities.Add(activity);
                     TempData["Message"] = "Activity added successfully!";
                 }
                 else
                 {
+                    // Updates existing activity
                     smithContext.Activities.Update(activity);
                     TempData["Message"] = "Activity updated successfully!";
                 }
+
                 smithContext.SaveChanges();
+
+                // Add the activity to the favorites list
+                var favorites = sessionCookieHelper.GetSession<List<int>>("Favorites") ?? new List<int>();
+                if (!favorites.Contains(activity.activityID))
+                {
+                    favorites.Add(activity.activityID);
+                    sessionCookieHelper.SetSession("Favorites", favorites);
+                }
+
                 return RedirectToAction("Index", "Admin");
             }
             else
@@ -59,6 +75,7 @@ namespace InClass6s.Controllers
             }
             return View(activity);
         }
+
 
         // Delete
         [HttpGet]
@@ -75,6 +92,36 @@ namespace InClass6s.Controllers
             smithContext.SaveChanges();
             TempData["Message"] = "Activity deleted successfully!";
             return RedirectToAction("Index", "Admin");
+        }
+
+        // Add to Favorites
+        public IActionResult AddToFavorites(int id)
+        {
+            // Retrieve the favorites list from Session
+            var favorites = sessionCookieHelper.GetSession<List<int>>("Favorites") ?? new List<int>();
+
+            if (!favorites.Contains(id))
+            {
+                favorites.Add(id);
+                sessionCookieHelper.SetSession("Favorites", favorites);
+                TempData["Message"] = "Activity added to favorites!";
+            }
+            else
+            {
+                TempData["Message"] = "Activity is already in favorites!";
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        // View Favorites
+        public IActionResult ViewFavorites()
+        {
+            // Retrieve the favorites list from Session
+            var favorites = sessionCookieHelper.GetSession<List<int>>("Favorites") ?? new List<int>();
+            var favoriteActivities = smithContext.Activities.Where(a => favorites.Contains(a.activityID)).ToList();
+
+            return View(favoriteActivities);
         }
 
         public IActionResult Privacy()
