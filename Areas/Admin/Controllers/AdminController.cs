@@ -55,13 +55,22 @@ namespace InClass6s.Controllers
 
                 smithContext.SaveChanges();
 
-                // Add the activity to the favorites list
-                var favorites = sessionCookieHelper.GetSession<List<int>>("Favorites") ?? new List<int>();
-                if (!favorites.Contains(activity.activityID))
+                // Update the LastEditedActivity cookie
+                sessionCookieHelper.SetCookie("LastEditedActivity", activity.activityName, 30); // Expires in 30 minutes
+
+                // Update the RecentActivities session
+                var recentActivities = sessionCookieHelper.GetSession<List<Activitys>>("RecentActivities") ?? new List<Activitys>();
+
+                // Add the current activity to the recent activities list
+                recentActivities.Add(activity);
+
+                // Limit the list to the last 5 activities
+                if (recentActivities.Count > 5)
                 {
-                    favorites.Add(activity.activityID);
-                    sessionCookieHelper.SetSession("Favorites", favorites);
+                    recentActivities = recentActivities.Skip(recentActivities.Count - 5).ToList();
                 }
+
+                sessionCookieHelper.SetSession("RecentActivities", recentActivities);
 
                 return RedirectToAction("Index", "Admin");
             }
@@ -75,7 +84,6 @@ namespace InClass6s.Controllers
             }
             return View(activity);
         }
-
 
         // Delete
         [HttpGet]
@@ -121,8 +129,15 @@ namespace InClass6s.Controllers
             var favorites = sessionCookieHelper.GetSession<List<int>>("Favorites") ?? new List<int>();
             var favoriteActivities = smithContext.Activities.Where(a => favorites.Contains(a.activityID)).ToList();
 
+            // Retrieve the recently added or edited activities from the session
+            var recentActivities = sessionCookieHelper.GetSession<List<Activitys>>("RecentActivities") ?? new List<Activitys>();
+
+            // Pass both lists to the view using ViewData
+            ViewData["RecentActivities"] = recentActivities;
+
             return View(favoriteActivities);
         }
+
 
         public IActionResult Privacy()
         {

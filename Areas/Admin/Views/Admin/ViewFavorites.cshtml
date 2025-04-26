@@ -2,18 +2,45 @@
 
 @{
     ViewData["Title"] = "Recent Changes";
+
+    // Retrieve the last edited activity name from cookies
+    var lastEditedActivity = Context.Request.Cookies["LastEditedActivity"];
+
+    // Retrieve the total number of activities from sessions
+    var totalActivities = Context.Session.GetInt32("TotalActivities");
+
+    // Retrieve the recently added or edited activities from the session
+    var recentActivities = Context.Session.GetString("RecentActivities");
+    var recentActivitiesList = string.IsNullOrEmpty(recentActivities)
+        ? new List<Activitys>()
+        : Newtonsoft.Json.JsonConvert.DeserializeObject<List<Activitys>>(recentActivities);
 }
 
 <h2>Recent Changes</h2>
 
-@if (Model == null || !Model.Any())
+@if (!string.IsNullOrEmpty(lastEditedActivity))
 {
-    <p>No activities have been changed or edited yet.</p>
+    <div class="alert alert-info">
+        <strong>Last Edited Activity:</strong> @lastEditedActivity
+    </div>
+}
+
+@if (totalActivities.HasValue)
+{
+    <div class="alert alert-info">
+        <strong>Total Activities:</strong> @totalActivities
+    </div>
+}
+
+@if (recentActivitiesList == null || !recentActivitiesList.Any())
+{
+    <p>No recent activities have been added or edited yet.</p>
 }
 else
 {
+    <h3>Recently Added or Edited Activities</h3>
     <ul>
-        @foreach (var activity in Model)
+        @foreach (var activity in recentActivitiesList)
         {
             <li>
                 <strong>@activity.activityName</strong> - @activity.activityDescription

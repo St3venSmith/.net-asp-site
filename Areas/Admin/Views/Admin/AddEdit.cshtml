@@ -1,6 +1,26 @@
 ﻿@model Activitys
 @{
+    // Retrieve the last edited activity name from cookies
+    var lastEditedActivity = Context.Request.Cookies["LastEditedActivity"];
+
+    // Retrieve the total number of activities from sessions
+    var totalActivities = Context.Session.GetInt32("TotalActivities");
 }
+
+@if (!string.IsNullOrEmpty(lastEditedActivity))
+{
+    <div class="alert alert-info">
+        Last Edited Activity: @lastEditedActivity
+    </div>
+}
+
+@if (totalActivities.HasValue)
+{
+    <div class="alert alert-info">
+        Total Activities: @totalActivities
+    </div>
+}
+
 <form asp-action="AddEdit" method="post">
     <div>
         <label asp-for="activityName"></label>
